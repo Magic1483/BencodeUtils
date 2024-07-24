@@ -20,10 +20,15 @@ json decode_bencoded_value(const std::string& encoded_value) {
         } else {
             throw std::runtime_error("Invalid encoded value: " + encoded_value);
         }
-    } else {
+    } else  if (encoded_value[0]=='i') {
+        std::string number = encoded_value.substr(0,encoded_value.length()-1);
+        return json(number);
+    }else {
         throw std::runtime_error("Unhandled encoded value: " + encoded_value);
     }
 }
+
+
 
 int main(int argc, char* argv[]) {
     // Flush after every std::cout / std::cerr
