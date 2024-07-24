@@ -20,12 +20,35 @@ json decode_bencoded_value(const std::string& encoded_value) {
         } else {
             throw std::runtime_error("Invalid encoded value: " + encoded_value);
         }
-    } else if (encoded_value[0] == 'i' && encoded_value[encoded_value.size()-1] == 'e'){
+    } 
+    else if (encoded_value[0] == 'i' && encoded_value[encoded_value.size()-1] == 'e'){
 
         std::string x = encoded_value.substr(1, encoded_value.length()-2);
         
         return json(std::stol(x));
-    }else {
+    }
+    else if (encoded_value[0] == 'l' && encoded_value[encoded_value.size()-1] == 'e'){
+        //decode list
+
+        std::string tmp;
+        json list = json::array();
+
+        std::string text = encoded_value.substr(1,encoded_value.length()-2);
+
+        for (size_t i = 0; i < text.length(); i++)
+            if (text[i] == 'e'){
+                list.push_back(decode_bencoded_value(tmp));
+                tmp = "";
+            } 
+            else {
+                tmp+=text[i];
+            }
+
+        
+        
+        return list;
+    }
+    else {
         throw std::runtime_error("Unhandled encoded value: " + encoded_value);
     }
 }
