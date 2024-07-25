@@ -1,35 +1,8 @@
-[![progress-banner](https://backend.codecrafters.io/progress/bittorrent/2c10b698-6692-4d38-a03e-8095269bcdce)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+## BencodeUtils path `lib/bencodeUtil`
 
-This is a starting point for C++ solutions to the
-["Build Your Own BitTorrent" Challenge](https://app.codecrafters.io/courses/bittorrent/overview).
+### Feautures
 
-In this challenge, you’ll build a BitTorrent client that's capable of parsing a
-.torrent file and downloading a file from a peer. Along the way, we’ll learn
-about how torrent files are structured, HTTP trackers, BitTorrent’s Peer
-Protocol, pipelining and more.
+- encode/decode int  `23` <--> `i23e`
+- encode/decode string   `hello` <--> `5:hello`
+- encode/decode list   `[23,"hello",476]` <--> `li23e5:helloi476ee`
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
-
-# Passing the first stage
-
-The entry point for your BitTorrent implementation is in `src/Main.cpp`. Study
-and uncomment the relevant code, and push your changes to pass the first stage:
-
-```sh
-git add .
-git commit -m "pass 1st stage" # any msg
-git push origin master
-```
-
-Time to move on to the next stage!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `cmake` installed locally
-1. Run `./your_bittorrent.sh` to run your program, which is implemented in
-   `src/Main.cpp`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.

@@ -3,83 +3,64 @@
 #include <vector>
 #include <cctype>
 #include <cstdlib>
+#include <cassert>
 
 #include "lib/nlohmann/json.hpp"
+#include "lib/becodeUtil/BencodeUtil.hpp"
 
 using json = nlohmann::json;
+using namespace std;
 
-json decode_bencoded_value(const std::string& encoded_value) {
-    if (std::isdigit(encoded_value[0])) {
-        // Example: "5:hello" -> "hello"
-        size_t colon_index = encoded_value.find(':');
-        if (colon_index != std::string::npos) {
-            std::string number_string = encoded_value.substr(0, colon_index);
-            int64_t number = std::atoll(number_string.c_str());
-            std::string str = encoded_value.substr(colon_index + 1, number);
-            return json(str);
-        } else {
-            throw std::runtime_error("Invalid encoded value: " + encoded_value);
-        }
-    } 
-    else if (encoded_value[0] == 'i' && encoded_value[encoded_value.size()-1] == 'e'){
+void test(){
+    json j = json::array({1,2,"hello",52,"yamite kudasai",458});
+    std::string encoded = encode_list(j);
 
-        std::string x = encoded_value.substr(1, encoded_value.length()-2);
-        
-        return json(std::stol(x));
-    }
-    else if (encoded_value[0] == 'l' && encoded_value[encoded_value.size()-1] == 'e'){
-        //decode list
+    int test_int = 52;
+    std::string enc_test_int = "i52e";
 
-        std::string tmp;
-        json list = json::array();
 
-        std::string text = encoded_value.substr(1,encoded_value.length()-2);
+    std::string test_str = "yamite kudasai";
+    std::string enc_test_str = "14:yamite kudasai";
 
-        for (size_t i = 0; i < text.length(); i++)
-            if (text[i] == 'e'){
-                list.push_back(decode_bencoded_value(tmp));
-                tmp = "";
-            } 
-            else {
-                tmp+=text[i];
-            }
+    // std::cout << (decode_bencoded_value(encoded) == j) << " " << encoded <<std::endl;
 
-        
-        
-        return list;
-    }
-    else {
-        throw std::runtime_error("Unhandled encoded value: " + encoded_value);
-    }
+
+    cout << "-------------------------------" << endl;
+    cout << "       | BENCODE TEXT |" << endl;
+    cout << "-------------------------------" << endl;
+
+    assert((enc_test_int == encode_int(test_int) ));
+    cout << "|    Int encode passed!    |"          << endl;
+
+    assert((test_int == decode_bencoded_value(enc_test_int) ));
+    cout << "|    Int decode passed!    |"          << endl;
+    cout << "\n---------------------------------\n" << endl;
+
+    assert((enc_test_str == encode_string(test_str) ));
+    cout << "|    String encode passed! |"          << endl;
+
+    assert((test_str == decode_bencoded_value(enc_test_str) ));
+    cout << "|    String decode passed! |" << endl;
+    cout << "\n---------------------------------\n" << endl;
+
+
+    assert((encoded == "li1ei2e5:helloi52e14:yamite kudasaii458ee"));
+    cout << "|    Array encode passed!  |"          << endl;
+
+    assert((decode_bencoded_value(encoded) == j));
+    cout << "|    Array decode passed!  |"          << endl;
+
+    cout << "-------------------------------"       << endl;
+    cout << "       | ALL PASSED |"                 << endl;
+    cout << "-------------------------------"       << endl;
 }
 
 
 
 int main(int argc, char* argv[]) {
-    // Flush after every std::cout / std::cerr
-    std::cout << std::unitbuf;
-    std::cerr << std::unitbuf;
-
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " decode <encoded_value>" << std::endl;
-        return 1;
-    }
-
-    std::string command = argv[1];
-
-    if (command == "decode") {
-        if (argc < 3) {
-            std::cerr << "Usage: " << argv[0] << " decode <encoded_value>" << std::endl;
-            return 1;
-        }
-        
-        std::string encoded_value = argv[2];
-        json decoded_value = decode_bencoded_value(encoded_value);
-        std::cout << decoded_value.dump() << std::endl;
-    } else {
-        std::cerr << "unknown command: " << command << std::endl;
-        return 1;
-    }
+    test();
+    
+    // cout << encode_list(json::array({1,2,"word is suck"}));
 
     return 0;
 }
