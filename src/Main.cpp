@@ -22,7 +22,7 @@ void test(){
     std::string test_str = "yamite kudasai";
     std::string enc_test_str = "14:yamite kudasai";
 
-    // std::cout << (decode_bencoded_value(encoded) == j) << " " << encoded <<std::endl;
+    std::cout << (decode_bencoded_value(encoded) == j) << " " << encoded << " " << j <<std::endl;
 
 
     cout << "-------------------------------" << endl;
@@ -58,9 +58,19 @@ void test(){
 
 
 int main(int argc, char* argv[]) {
-    test();
+    // test();
     
-    // cout << encode_list(json::array({1,2,"word is suck"}));
+    int len = 0;
+    json o;
+    o["name"] = "vasya loh";
+    o["age"] = 23;
+    o["baz"] = "string";
+    o["merge"] = 17;
+    // std::tie(res,len) = decode_bencoded_value("d3:cow3:moo4:spam4:eggs5:helloi15ee");
+    std::string enc = encode_dict(o);
+    json dec = decode_bencoded_value(enc);
+
+    cout << enc << endl << dec <<endl;
 
     return 0;
 }
