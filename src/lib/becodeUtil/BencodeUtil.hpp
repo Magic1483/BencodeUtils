@@ -6,6 +6,7 @@
 #include <cassert>
 
 #include "BencodeUtil.cpp"
+#include "test.cpp"
 
 using json = nlohmann::json;
 using namespace std;
@@ -23,3 +24,5 @@ std::tuple<json,int> decode_int(const std::string& encoded_value);
 std::tuple<json,int> decode_list(const std::string& encoded_value);
 std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value);
 
+// tests
+void BencodeTest();

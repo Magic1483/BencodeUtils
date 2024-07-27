@@ -1,76 +1,67 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <cctype>
+#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
-#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <tuple>
 
 #include "lib/nlohmann/json.hpp"
-#include "lib/becodeUtil/BencodeUtil.hpp"
+#include "lib/sha1/sha1.hpp"
+#include "lib/becodeUtil/BencodeUtil.cpp"
 
 using json = nlohmann::json;
 using namespace std;
 
-void test(){
-    json j = json::array({1,2,"hello",52,"yamite kudasai",458});
-    std::string encoded = encode_list(j);
 
-    int test_int = 52;
-    std::string enc_test_int = "i52e";
+json parse_torrent_file(const std::string& filename) {
 
+    std::ifstream ifs(filename);
+    if (ifs) {
+        ifs.seekg(0, ifs.end);
+        int length = ifs.tellg();
+        ifs.seekg(0, ifs.beg);
+        char *buffer = new char[length];
+        ifs.read(buffer, length);
+        std::string torrent_data = buffer;
 
-    std::string test_str = "yamite kudasai";
-    std::string enc_test_str = "14:yamite kudasai";
+        int data_len;
+        json data_res;
+        std::tie(data_res,data_len) = decode_bencoded_value(torrent_data);
+        return data_res;
+    }
+    throw std::runtime_error("Unable to find file: " + filename);
 
-    std::cout << (decode_bencoded_value(encoded) == j) << " " << encoded << " " << j <<std::endl;
-
-
-    cout << "-------------------------------" << endl;
-    cout << "       | BENCODE TEXT |" << endl;
-    cout << "-------------------------------" << endl;
-
-    assert((enc_test_int == encode_int(test_int) ));
-    cout << "|    Int encode passed!    |"          << endl;
-
-    assert((test_int == decode_bencoded_value(enc_test_int) ));
-    cout << "|    Int decode passed!    |"          << endl;
-    cout << "\n---------------------------------\n" << endl;
-
-    assert((enc_test_str == encode_string(test_str) ));
-    cout << "|    String encode passed! |"          << endl;
-
-    assert((test_str == decode_bencoded_value(enc_test_str) ));
-    cout << "|    String decode passed! |" << endl;
-    cout << "\n---------------------------------\n" << endl;
-
-
-    assert((encoded == "li1ei2e5:helloi52e14:yamite kudasaii458ee"));
-    cout << "|    Array encode passed!  |"          << endl;
-
-    assert((decode_bencoded_value(encoded) == j));
-    cout << "|    Array decode passed!  |"          << endl;
-
-    cout << "-------------------------------"       << endl;
-    cout << "       | ALL PASSED |"                 << endl;
-    cout << "-------------------------------"       << endl;
 }
 
+void GetTorrentInfo(const std::string &filename){
+    json data = parse_torrent_file(filename);
 
+    std::string enc_info = encode(data["info"]);
+    SHA1 info_hash;
+    info_hash.update(enc_info);
+
+
+    std::cout << "---------------------------------------------"     << std::endl;
+    std::cout << "Name:                " << data["info"]["name"]     << std::endl;
+    std::cout << "Length:              " << data["info"]["length"]   << std::endl;
+    std::cout << "INFO Hash(SHA-1):    " << info_hash.final()        << std::endl;
+    std::cout << "Piece Length:        " << data["info"]["piece length"] << std::endl;
+    std::cout << "---------------------------------------------"     << std::endl;
+}
 
 int main(int argc, char* argv[]) {
-    // test();
-    
-    int len = 0;
-    json o;
-    o["name"] = "vasya loh";
-    o["age"] = 23;
-    o["baz"] = "string";
-    o["merge"] = 17;
-    // std::tie(res,len) = decode_bencoded_value("d3:cow3:moo4:spam4:eggs5:helloi15ee");
-    std::string enc = encode_dict(o);
-    json dec = decode_bencoded_value(enc);
 
-    cout << enc << endl << dec <<endl;
+    // int len;
+    // json res;
 
+    // std::tie(res,len) = decode_bencoded_value("ld5:hello5:ghosted5:hello5:ghostee");
+    // std::tie(res,len) = decode_bencoded_value("d3:ke1lll6:hi bro12:are u stupideee4:key2i13e4:key39:th stringe");
+    GetTorrentInfo("true.torrent");
+
+    // json res = parse_torrent_file("true.torrent");
+    // cout << res["info"];
+    // GetTorrentInfo("true.torrent");
     return 0;
 }

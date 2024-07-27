@@ -9,7 +9,3 @@
 
 ## SOURCES (links)
 
-- https://wiki.theory.org/BitTorrentSpecification#Purpose
-- https://en.wikipedia.org/wiki/Bencode
-- https://www.bittorrent.org/beps/bep_0003.html
-- [Build torrent on Go](https://blog.jse.li/posts/torrent/)
