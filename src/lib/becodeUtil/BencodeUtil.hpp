@@ -5,24 +5,16 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "./lib/nlohmann/json.hpp"
 #include "BencodeUtil.cpp"
-#include "test.cpp"
 
 using json = nlohmann::json;
-using namespace std;
-
 
 // encode part
-std::string encode_string(std::string str);
-std::string encode_int(int num);
-std::string encode_list(json::array_t list);
-std::string encode_dict(json dict);
+std::string encode(json t);
+
 
 // decode part
-std::tuple<json,int> decode_string(const std::string& encoded_value);
-std::tuple<json,int> decode_int(const std::string& encoded_value);
-std::tuple<json,int> decode_list(const std::string& encoded_value);
-std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value);
+std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value,bool is_bin_str = false)
 
 // tests
-void BencodeTest();

@@ -7,10 +7,26 @@
 #include <typeinfo>
 #include <optional>
 #include <tuple>
+#include <bitset>
 
 
 using json = nlohmann::json;
 
+// std::string hexEncode(const std::string& input)
+// {
+//     static const char hexDigits[] = "0123456789ABCDEF";
+
+//     std::string output;
+//     output.reserve(input.length() * 2);
+//     for (unsigned char c : input)
+//     {
+//         output.push_back('\\');
+//         output.push_back('x');
+//         output.push_back(hexDigits[c >> 4]);
+//         output.push_back(hexDigits[c & 15]);
+//     }
+//     return output;
+// }
 
 std::string encode(json t){
     std::string res = "";
@@ -48,25 +64,34 @@ std::string encode(json t){
     DECODE:
     INT STRING LIST DICT
 */
-std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value) {
+std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value,bool is_bin_str = false) {
+    // std::cout << "reminder  " << encoded_value << std::endl;
     if (std::isdigit(encoded_value[0])) {
         //  DECODE STRING
-        std::cout << "decode string" << std::endl;
+        std::cout << "decode string " << is_bin_str <<std::endl;
         size_t colon_index = encoded_value.find(':');
         if (colon_index != std::string::npos) {
             std::string number_string = encoded_value.substr(0, colon_index);
-            int64_t number = std::stoll(number_string);
-            std::string str = encoded_value.substr(colon_index + 1, number);
+            int64_t number = std::atoll(number_string.c_str());
+            std::string s = encoded_value.substr(colon_index + 1, number);
 
-            // std::cout << str.length()  << " " << str <<std::endl;
-            return std::make_tuple(json(str),str.length()+number_string.length()+1);
+            std::cout << "string len   " << s.length() << " " <<std::endl;
+            if (is_bin_str == true){
+                
+                std::vector<uint8_t> vec(s.begin(),s.end()); 
+                std::cout << "decode bin    " << s << std::endl;    
+                
+                return std::make_tuple(vec,s.length()+number_string.length()+1);
+            }
+
+            return std::make_tuple(json(s),s.length()+number_string.length()+1);
         } else {
             throw std::runtime_error("Invalid encoded value: " + encoded_value);
         }
     } 
     else if (encoded_value[0] == 'i'){
         //  DECODE INT
-        std::cout << "decode int" << "     "<< encoded_value <<std::endl;
+        // std::cout << "decode int" << "     "<< encoded_value <<std::endl;
         std::string res = "";
         for (int i = 1; encoded_value[i] != 'e' ; i++)
             res += encoded_value[i];
@@ -86,7 +111,7 @@ std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value) {
             int len;
 
             std::tie(res,len) = decode_bencoded_value(text);
-            std::cout << "return len " << len << std::endl;
+            // std::cout << "return len " << len << std::endl;
             text = text.substr(len);
             
             list.push_back(res);
@@ -111,10 +136,16 @@ std::tuple<json,int> decode_bencoded_value(const std::string& encoded_value) {
             text = text.substr(len);
             dict_len+=len;
 
-            std::tie(val,len) = decode_bencoded_value(text);
+            if (key == "pieces"){
+                std::tie(val,len) = decode_bencoded_value(text,true);
+            } else {
+                std::tie(val,len) = decode_bencoded_value(text);
+            }
+            
             text = text.substr(len);
             dict_len+=len;
 
+            // std::cout  << "key val  " << key << "   " << val << std::endl;
             dict[key] = val;
 
         }

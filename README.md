@@ -9,3 +9,5 @@
 
 ## SOURCES (links)
 
+[BencodeEditor](https://sites.google.com/site/ultimasites/bencode-editor)
+[TorrentEditor](https://torrent-file-editor.github.io/)
